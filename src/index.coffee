@@ -13,7 +13,6 @@ class TicketingHub
   @ConnectionError: ConnectionError
   @ValidationError: ValidationError
 
-if module?.exports
-  module.exports = 
-    TicketingHub: TicketingHub
-else global.TicketingHub = TicketingHub
+if typeof global.window isnt 'undefined'
+  global.window.TicketingHub = TicketingHub
+else module.exports = TicketingHub: TicketingHub
