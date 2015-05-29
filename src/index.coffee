@@ -3,7 +3,7 @@ require './polyfill'
 Endpoint = require './endpoint'
 { RequestError, ServerError, ConnectionError, ValidationError } = require './errors'
 
-class global.TicketingHub
+class TicketingHub
   @endpoint: new Endpoint('http://localhost:5000')
 
   @Channel: require('./channel/channel')
@@ -12,3 +12,8 @@ class global.TicketingHub
   @ServerError: ServerError
   @ConnectionError: ConnectionError
   @ValidationError: ValidationError
+
+if module?.exports
+  module.exports = 
+    TicketingHub: TicketingHub
+else global.TicketingHub = TicketingHub

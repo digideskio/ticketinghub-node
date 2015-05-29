@@ -1,6 +1,6 @@
 SOURCE = src/index.coffee
-TARGET = ./lib/channel.js
-TARGET_MIN = ./lib/channel.min.js
+TARGET = ./lib/ticketinghub.js
+TARGET_MIN = ./lib/ticketinghub.min.js
 FLAGS = -t coffeeify --extension=".coffee"
 
 WATCHIFY = ./node_modules/.bin/watchify
