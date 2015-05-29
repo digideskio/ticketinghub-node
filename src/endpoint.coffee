@@ -45,7 +45,8 @@ class Endpoint
           # CORS
           xhr.timeout = TIMEOUT
           xhr.withCredentials = true
-          xhr.open 'GET', "#{parts.href}#{query}", true, @auth
+          xhr.open 'GET', "#{parts.href}#{query}", true
+          xhr.setRequestHeader 'Authorization', "Basic #{btoa "#{@auth}:"}"
           xhr.onload = ->
             body = xhr.responseText
             headers = util.parseResponseHeaders xhr.getAllResponseHeaders()
