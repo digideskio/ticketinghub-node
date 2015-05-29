@@ -1,0 +1,19 @@
+{
+  "name": "ticketinghub",
+  "version": "0.0.1",
+  "authors": [
+    "Oliver Morgan <ollym@me.com>"
+  ],
+  "description": "TicketingHub JS client library",
+  "main": "lib/channel.js",
+  "keywords": [
+    "ticketinghub"
+  ],
+  "license": "MIT",
+  "homepage": "https://www.ticketinghub.com/",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components"
+  ]
+}

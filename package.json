@@ -1,0 +1,36 @@
+{
+  "name": "ticketinghub",
+  "version": "0.0.1",
+  "description": "TicketingHub Client Library",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/tickethub/node.git"
+  },
+  "keywords": [
+    "ticketinghub"
+  ],
+  "engines": {
+    "node": ">= v0.10.0"
+  },
+  "dependencies": {
+    "es6-promise": "*",
+    "doc-ready": "*"
+  },
+  "devDependencies": {
+    "browserify": "*",
+    "watchify": "*",
+    "coffee-script": "*",
+    "coffeeify": "*",
+    "uglify-js": "*"
+  },
+  "author": {
+    "name": "Oliver Morgan",
+    "email": "olly@ticketinghub.com",
+    "url": "https://www.ticketinghub.com"
+  },
+  "scripts": {
+    "test": "tap test/*.js"
+  },
+  "license": "MIT"
+}
