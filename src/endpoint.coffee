@@ -27,7 +27,7 @@ class Endpoint
     id = util.generateUUID()
 
     new Promise (resolve, reject) =>
-      parts = util.parseURL "#{@url}/#{path}"
+      parts = util.parseURL(if path[0] == '/' then "#{@origin}/#{path}" else "#{@url}/#{path}")
       json_params = encodeURIComponent JSON.stringify(params || {})
       query = "?_id=#{id}&_json=#{json_params}&_method=#{method.toLowerCase()}"
 
