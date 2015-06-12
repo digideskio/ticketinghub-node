@@ -54,6 +54,19 @@ class Resource extends EventEmitter
               setTimeout retry, util.timeDecay(util.parseISO8601DateTime(@updated_at))
           setTimeout retry, util.timeDecay(util.parseISO8601DateTime(@updated_at))
 
+  delete: ->
+    @endpoint.delete(attributes)
+      .then (response) => @_setup(response.body)
+
+  update: (attributes) ->
+    new Promise (resolve, reject) =>
+      @endpoint.patch(attributes)
+        .then (response) => resolve @_setup(response.body)
+        .catch TicketingHub.RequestError, (error) =>
+          reject if error.response.status == 422
+            new TicketingHub.ValidationError @constructor.load(@endpoint, error.response.body)
+          else error
+
   _reload: ->
     @_endpoint.get().then (response) =>
       @_setup response.body
