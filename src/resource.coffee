@@ -66,6 +66,7 @@ class Resource extends EventEmitter
           reject if error.response.status == 422
             new TicketingHub.ValidationError @constructor.load(@_endpoint, error.response.body)
           else error
+        .catch (error) -> reject error
 
   _reload: ->
     @_endpoint.get().then (response) =>

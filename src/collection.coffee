@@ -82,6 +82,7 @@ class Collection extends EventEmitter
           reject if error.response.status == 422
             new TicketingHub.ValidationError @klass.load(@endpoint, error.response.body)
           else error
+        .catch (error) -> reject error
 
   reload: (params) ->
     @endpoint.get(@params(params)).then (response) =>
