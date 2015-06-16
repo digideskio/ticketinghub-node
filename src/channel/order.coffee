@@ -12,7 +12,7 @@ class Order extends require('../resource')
   confirm: ->
     @_endpoint.post('confirm')
       .then (response) => @_setup response.body
-      .catch TicketingHub.RequestError, (error) =>
-        if error.response.status == 422
-          throw new TicketingHub.ValidationError @klass.load(@endpoint, error.response.body)
+      .catch (error) =>
+        if (error instanceof TicketingHub.RequestError) || error.response.status == 422
+          throw new TicketingHub.ValidationError @constructor.load(@_endpoint, error.response.body)
         else throw error

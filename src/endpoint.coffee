@@ -39,9 +39,9 @@ class Endpoint
         else resolve response
 
       if 'XMLHttpRequest' of global
-        xhr = new XMLHttpRequest
+        xhr = try new XMLHttpRequest
 
-        if 'withCredentials' of xhr && 'timeout' of xhr
+        if xhr && ('withCredentials' of xhr && 'timeout' of xhr)
           # CORS
           xhr.timeout = TIMEOUT
           xhr.withCredentials = true

@@ -3,4 +3,4 @@ class TicketBooking extends require('../booking')
 
   @path = '/channel/bookings'
 
-  @collection 'tickets', require('./ticket')
+  @collection 'tickets', require('../ticket')

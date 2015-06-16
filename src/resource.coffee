@@ -47,28 +47,26 @@ class Resource extends EventEmitter
 
           retry = =>
             return unless listening
-            @_reload().then =>
+            @reload().then =>
               if updated_at != @updated_at
                 updated_at = @updated_at
                 @emit 'change', this
               setTimeout retry, util.timeDecay(util.parseISO8601DateTime(@updated_at))
           setTimeout retry, util.timeDecay(util.parseISO8601DateTime(@updated_at))
 
-  delete: ->
-    @_endpoint.delete(attributes)
+  delete: (params) ->
+    @_endpoint.delete(params)
       .then (response) => @_setup(response.body)
 
   update: (attributes) ->
-    new Promise (resolve, reject) =>
-      @_endpoint.patch(attributes)
-        .then (response) => resolve @_setup(response.body)
-        .catch TicketingHub.RequestError, (error) =>
-          reject if error.response.status == 422
-            new TicketingHub.ValidationError @constructor.load(@_endpoint, error.response.body)
-          else error
-        .catch (error) -> reject error
+    @_endpoint.patch(attributes)
+      .then (response) => @_setup(response.body)
+      .catch (error) =>
+        if (error instanceof TicketingHub.RequestError) || error.response.status == 422
+          throw new TicketingHub.ValidationError @constructor.load(@_endpoint, error.response.body)
+        else throw error
 
-  _reload: ->
+  reload: ->
     @_endpoint.get().then (response) =>
       @_setup response.body
 

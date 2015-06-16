@@ -74,15 +74,13 @@ class Collection extends EventEmitter
       @endpoint[method](args...).then (response) -> response.body
 
   create: (attributes) ->
-    new Promise (resolve, reject) =>
-      @endpoint.post(attributes)
-        .then (response) =>
-          resolve @klass.load(@endpoint, response.body)
-        .catch TicketingHub.RequestError, (error) =>
-          reject if error.response.status == 422
-            new TicketingHub.ValidationError @klass.load(@endpoint, error.response.body)
-          else error
-        .catch (error) -> reject error
+    @endpoint.post(attributes)
+      .then (response) =>
+        @klass.load(@endpoint, response.body)
+      .catch (error) =>
+        if (error instanceof TicketingHub.RequestError) || error.response.status == 422
+          throw new TicketingHub.ValidationError @klass.load(@endpoint, error.response.body)
+        else throw error
 
   reload: (params) ->
     @endpoint.get(@params(params)).then (response) =>

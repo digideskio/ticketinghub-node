@@ -7,5 +7,6 @@ class Booking extends require('../resource')
     ticket: require('./booking/ticket')
     voucher: require('./booking/voucher')
 
+  @collection 'tiers', require('./tier')
   @collection 'answers', require('./answer')
   @collection 'purchases', require('./purchase')
