@@ -4,7 +4,7 @@ Endpoint = require './endpoint'
 { RequestError, ServerError, ConnectionError, ValidationError } = require './errors'
 
 class TicketingHub
-  @endpoint: new Endpoint('http://localhost:5000')
+  @endpoint: new Endpoint('https://api.ticketinghub.com')
 
   @Channel: require('./channel/channel')
 
