@@ -1,9 +1,10 @@
 extend = require('./util').extend
-{ JSON, Promise } = require('./index')
 Response = require './response'
 util = require './util'
+TicketingHub = require './ticketinghub'
 
 class Endpoint
+  module.exports = this
 
   TIMEOUT = 30 * 1000
   RETRIES = 3
@@ -25,7 +26,7 @@ class Endpoint
   request: (method, path = '', params) ->
     id = util.generateUUID()
 
-    new Promise (resolve, reject) =>
+    new TicketingHub.Promise (resolve, reject) =>
       parts = util.parseURL(if path[0] == '/' then "#{@origin}/#{path}" else "#{@url}/#{path}")
       json_params = encodeURIComponent JSON.stringify(params || {})
       query = "?_id=#{id}&_json=#{json_params}&_method=#{method.toLowerCase()}"
@@ -108,5 +109,3 @@ class Endpoint
           reject new TicketingHub.ConnectionError(error.message)
 
         req.end()
-
-module.exports = Endpoint

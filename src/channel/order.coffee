@@ -1,4 +1,4 @@
-Promise = require('../index').Promise;
+TicketingHub = require('../ticketinghub');
 
 class Order extends require('../resource')
   module.exports = this

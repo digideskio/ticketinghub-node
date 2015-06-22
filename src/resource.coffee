@@ -2,8 +2,10 @@ extend = require('./util').extend
 util = require('./util')
 Collection = require './collection'
 EventEmitter = require('events').EventEmitter
+TicketingHub = require './ticketinghub'
 
 class Resource extends EventEmitter
+  module.exports = this
 
   @collection: (key, klass) ->
     @::[key] = (args...) ->
@@ -76,5 +78,3 @@ class Resource extends EventEmitter
         @["#{key}="] value
       else @[key] = value
     return this
-
-module.exports = Resource

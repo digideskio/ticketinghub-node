@@ -1,5 +1,6 @@
 class Response
-  
+  module.exports = this
+
   constructor: (@status, body = '', headers = {}) ->
     @headers = {}
     for key, value of headers
@@ -9,5 +10,3 @@ class Response
       body = JSON.parse body
 
     @body = body
-
-module.exports = Response

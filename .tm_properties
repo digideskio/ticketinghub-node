@@ -1,4 +1,4 @@
 include = "{$include,.*}"
 exclude = "{$exclude,.git,.DS_Store,node_modules}"
-excludeInFolderSearch = "{$excludeInFolderSearch,$extraExcludes,browser}"
+excludeInFolderSearch = "{$excludeInFolderSearch,$extraExcludes,browser,lib}"
 excludeInFileChooser = "{$exclude,$excludeInFolderSearch}"

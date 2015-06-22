@@ -1,21 +1,24 @@
-Endpoint = require './endpoint'
 { RequestError, ServerError, ConnectionError, ValidationError } = require './errors'
 
+_old = global.Promise
+Promise = require('es6-promise').Promise
+global.Promise = _old
+
 class TicketingHub
-  @endpoint: new Endpoint('https://api.ticketinghub.com')
+  module.exports = this
 
   @Channel: require('./channel/channel')
-  @Promise: require('es6-promise').Promise
+  @Promise: Promise
   @JSON: global.JSON
 
   @RequestError: RequestError
   @ServerError: ServerError
   @ConnectionError: ConnectionError
   @ValidationError: ValidationError
+  @TicketingHub: TicketingHub
 
-if typeof global.window isnt 'undefined'
-  global.window.TicketingHub = TicketingHub
-else module.exports = TicketingHub: TicketingHub
+Endpoint = require('./endpoint')
+TicketingHub.endpoint = new Endpoint 'https://api.ticketinghub.com'
 
 TicketingHub.JSON ||=
   parse: (sJSON) ->

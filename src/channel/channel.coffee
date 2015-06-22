@@ -1,3 +1,5 @@
+TicketingHub = require '../ticketinghub'
+
 class Channel extends require('../resource')
   module.exports = this
 

@@ -14,8 +14,7 @@
     "node": ">= v0.10.0"
   },
   "dependencies": {
-    "es6-promise": "*",
-    "doc-ready": "*"
+    "es6-promise": "*"
   },
   "devDependencies": {
     "browserify": "*",

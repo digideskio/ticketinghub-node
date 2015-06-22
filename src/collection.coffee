@@ -1,8 +1,9 @@
 extend = require('./util').extend
-Promise = require('./index').Promise;
+TicketingHub = require('./ticketinghub');
 EventEmitter = require('events').EventEmitter
 
 class Collection extends EventEmitter
+  module.exports = this
 
   MAX_LIMIT = 25
 
@@ -12,7 +13,6 @@ class Collection extends EventEmitter
     @_params = extend {}, params || {}
     @_limit = @_params.limit || MAX_LIMIT
     @_offset = @_params.offset || 0
-
 
   each: (callback) ->
     index = 0
@@ -34,7 +34,7 @@ class Collection extends EventEmitter
     return this
 
   first: (count = 1) ->
-    new Promise (resolve, reject) =>
+    new TicketingHub.Promise (resolve, reject) =>
       values = []
       @limit(Math.min MAX_LIMIT, count).each (value, index) ->
         if index == count - 1
@@ -43,7 +43,7 @@ class Collection extends EventEmitter
 
   all: ->    
     @reload().then =>
-      new Promise (resolve, reject) =>
+      new TicketingHub.Promise (resolve, reject) =>
         values = []
         @each (value, index, count) ->
           values.push value
@@ -65,7 +65,7 @@ class Collection extends EventEmitter
     new Collection @endpoint, @klass, @params(filters: filters)
 
   count: ->
-    new Promise (resolve, reject) =>
+    new TicketingHub.Promise (resolve, reject) =>
       return resolve @_count if @_count
       @reload().then => resolve @_count
 
@@ -92,5 +92,3 @@ class Collection extends EventEmitter
 
   params: (params) ->
     extend extend({}, @_params), params || {}
-
-module.exports = Collection
