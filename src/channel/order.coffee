@@ -1,5 +1,4 @@
-Promise = require('es6-promise').Promise;
-Endpoint = require '../endpoint'
+Promise = require('../index').Promise;
 
 class Order extends require('../resource')
   module.exports = this

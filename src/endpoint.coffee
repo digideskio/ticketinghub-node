@@ -1,7 +1,6 @@
 extend = require('./util').extend
-Promise = require('es6-promise').Promise;
+{ JSON, Promise } = require('./index')
 Response = require './response'
-
 util = require './util'
 
 class Endpoint

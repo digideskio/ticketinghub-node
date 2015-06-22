@@ -1,5 +1,5 @@
 extend = require('./util').extend
-Promise = require('es6-promise').Promise;
+Promise = require('./index').Promise;
 EventEmitter = require('events').EventEmitter
 
 class Collection extends EventEmitter
