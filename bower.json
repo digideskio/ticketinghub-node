@@ -1,11 +1,11 @@
 {
   "name": "ticketinghub",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "authors": [
     "Oliver Morgan <ollym@me.com>"
   ],
   "description": "TicketingHub JS client library",
-  "main": "lib/channel.js",
+  "main": "lib/ticketinghub.js",
   "keywords": [
     "ticketinghub"
   ],
