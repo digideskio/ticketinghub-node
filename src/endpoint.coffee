@@ -82,8 +82,8 @@ class Endpoint
             script.parentNode.removeChild script
             handle new Response status, body, headers
 
-          head = document.head || document.getElementsByTagName('head')[0];
-          head.appendChild script
+          sibling = document.getElementsByTagName('script')[0]
+          parentNode.insertBefore script, sibling
       else
 
         options =
