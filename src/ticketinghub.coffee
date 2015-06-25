@@ -1,14 +1,10 @@
 { RequestError, ServerError, ConnectionError, ValidationError } = require './errors'
 
-_old = global.Promise
-Promise = require('es6-promise').Promise
-global.Promise = _old
-
 class TicketingHub
   module.exports = this
 
   @Channel: require('./channel/channel')
-  @Promise: Promise
+  @Promise: require('yaku')
   @JSON: global.JSON
 
   @RequestError: RequestError
