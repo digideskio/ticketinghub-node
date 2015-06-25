@@ -68,7 +68,7 @@ class Endpoint
           script = document.createElement 'script'
           script.type = 'text/javascript';
           script.async = true;
-          script.src = "#{parts.href}#{query}&_token=#{@auth}&_callback=#{callback}&_=#{Number(new Date) + ".#{id}"}";
+          script.src = "#{parts.href}#{query}&_token=#{@auth}&_callback=#{callback}";
 
           timeout = setTimeout ->
             script.parentNode.removeChild script
@@ -82,8 +82,8 @@ class Endpoint
             script.parentNode.removeChild script
             handle new Response status, body, headers
 
-          target = document.getElementsByTagName('script')[0] || document.head
-          target.parentNode.insertBefore(script, target);
+          head = document.head || document.getElementsByTagName('head')[0];
+          head.appendChild script
       else
 
         options =
