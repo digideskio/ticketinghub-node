@@ -44,10 +44,11 @@ class Endpoint
         if xhr && ('withCredentials' of xhr && 'timeout' of xhr) # CORS
           xhr.open 'GET', "#{parts.href}#{query}", true
           xhr.timeout = TIMEOUT
+          try xhr.responseType = 'json'
           xhr.withCredentials = true
           xhr.setRequestHeader 'Authorization', "Basic #{btoa "#{@auth}:"}"
           xhr.onload = ->
-            body = xhr.responseText
+            body = xhr.response || JSON.parse(xhr.responseText)
             headers = util.parseResponseHeaders xhr.getAllResponseHeaders()
             handle new Response xhr.status, body, headers
 
