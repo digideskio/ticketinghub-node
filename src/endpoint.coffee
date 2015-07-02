@@ -83,7 +83,7 @@ class Endpoint
             handle new Response status, body, headers
 
           sibling = document.getElementsByTagName('script')[0]
-          parentNode.insertBefore script, sibling
+          sibling.parentNode.insertBefore script, sibling
       else
 
         options =
