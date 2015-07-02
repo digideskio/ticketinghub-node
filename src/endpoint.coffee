@@ -41,11 +41,10 @@ class Endpoint
       if 'XMLHttpRequest' of global
         xhr = try new XMLHttpRequest
 
-        if xhr && ('withCredentials' of xhr && 'timeout' of xhr)
-          # CORS
+        if xhr && ('withCredentials' of xhr && 'timeout' of xhr) # CORS
+          xhr.open 'GET', "#{parts.href}#{query}", true
           xhr.timeout = TIMEOUT
           xhr.withCredentials = true
-          xhr.open 'GET', "#{parts.href}#{query}", true
           xhr.setRequestHeader 'Authorization', "Basic #{btoa "#{@auth}:"}"
           xhr.onload = ->
             body = xhr.responseText
@@ -60,8 +59,7 @@ class Endpoint
 
           xhr.send();
 
-        else
-          # JSONP fallback
+        else # JSONP fallback
           global._th_jsonp_counter ||= 0
 
           callback = "_th_jsonp_callback#{id = global._th_jsonp_counter++}"
