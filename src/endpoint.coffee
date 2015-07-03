@@ -39,50 +39,27 @@ class Endpoint
         else resolve response
 
       if 'XMLHttpRequest' of global
-        xhr = try new XMLHttpRequest
+        # Always use JSONP
+        callback = "_jsonp_#{ id.replace '-', '' }"
+        script = document.createElement 'script'
+        script.type = 'text/javascript';
+        script.async = true;
+        script.src = "#{parts.href}#{query}&_token=#{@auth}&_callback=#{callback}";
 
-        if xhr && ('withCredentials' of xhr && 'timeout' of xhr) # CORS
-          xhr.open 'GET', "#{parts.href}#{query}", true
-          xhr.timeout = TIMEOUT
-          try xhr.responseType = 'json'
-          xhr.withCredentials = true
-          xhr.setRequestHeader 'Authorization', "Basic #{btoa "#{@auth}:"}"
-          xhr.onload = ->
-            body = xhr.response || JSON.parse(xhr.responseText)
-            headers = util.parseResponseHeaders xhr.getAllResponseHeaders()
-            handle new Response xhr.status, body, headers
+        timeout = setTimeout ->
+          script.parentNode.removeChild script
+          global[callback] = ->
+          reject new TicketingHub.ConnectionError('Request timed out.')
+        , TIMEOUT
 
-          xhr.onerror = ->
-            reject new TicketingHub.ConnectionError('Request network error.')
+        global[callback] = (body, status, headers) ->
+          clearTimeout timeout
+          global[callback] = ->
+          script.parentNode.removeChild script
+          handle new Response status, body, headers
 
-          xhr.ontimeout = ->
-            reject new TicketingHub.ConnectionError('Request timed out.')
-
-          xhr.send();
-
-        else # JSONP fallback
-          global._th_jsonp_counter ||= 0
-
-          callback = "_th_jsonp_callback#{id = global._th_jsonp_counter++}"
-          script = document.createElement 'script'
-          script.type = 'text/javascript';
-          script.async = true;
-          script.src = "#{parts.href}#{query}&_token=#{@auth}&_callback=#{callback}";
-
-          timeout = setTimeout ->
-            script.parentNode.removeChild script
-            global[callback] = ->
-            reject new TicketingHub.ConnectionError('Request timed out.')
-          , TIMEOUT
-
-          global[callback] = (body, status, headers) ->
-            clearTimeout timeout
-            global[callback] = ->
-            script.parentNode.removeChild script
-            handle new Response status, body, headers
-
-          sibling = document.getElementsByTagName('script')[0]
-          sibling.parentNode.insertBefore script, sibling
+        sibling = document.getElementsByTagName('script')[0]
+        sibling.parentNode.insertBefore script, sibling
       else
 
         options =
