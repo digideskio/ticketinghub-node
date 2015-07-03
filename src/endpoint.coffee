@@ -40,7 +40,7 @@ class Endpoint
 
       if 'XMLHttpRequest' of global
         # Always use JSONP
-        callback = "_jsonp_#{ id.replace '-', '' }"
+        callback = "_jsonp_#{ id.replace /-/g, '' }"
         script = document.createElement 'script'
         script.type = 'text/javascript';
         script.async = true;
