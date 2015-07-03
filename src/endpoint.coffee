@@ -28,7 +28,7 @@ class Endpoint
 
     new TicketingHub.Promise (resolve, reject) =>
       parts = util.parseURL(if path[0] == '/' then "#{@origin}/#{path}" else "#{@url}/#{path}")
-      json_params = encodeURIComponent JSON.stringify(params || {})
+      json_params = encodeURIComponent TicketingHub.JSON.stringify(params || {})
       query = "?_id=#{id}&_json=#{json_params}&_method=#{method.toLowerCase()}"
 
       handle = (response) ->

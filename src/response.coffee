@@ -1,3 +1,5 @@
+TicketingHub = require './ticketinghub'
+
 class Response
   module.exports = this
 
@@ -7,6 +9,6 @@ class Response
       @headers[key.toLowerCase()] = value
 
     if /json/.test @headers['content-type']
-      body = JSON.parse body
+      body = TicketingHub.JSON.parse body
 
     @body = body
