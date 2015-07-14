@@ -43,12 +43,11 @@ class Endpoint
 
         callback = "_jsonp_#{ id.replace /-/g, '' }"
         script = document.createElement 'script'
-        script.type = 'text/javascript';
         script.async = true;
         script.src = "#{parts.href}.json#{query}&_token=#{@auth}&_callback=#{callback}";
 
         timeout = setTimeout ->
-          script.parentNode.removeChild script
+          try script.parentNode.removeChild script
           global[callback] = ->
           reject new TicketingHub.ConnectionError('Request timed out.')
         , TIMEOUT
