@@ -45,7 +45,7 @@ class Endpoint
         script = document.createElement 'script'
         script.type = 'text/javascript';
         script.async = true;
-        script.src = "#{parts.href}#{query}&_token=#{@auth}&_callback=#{callback}";
+        script.src = "#{parts.href}.json#{query}&_token=#{@auth}&_callback=#{callback}";
 
         timeout = setTimeout ->
           script.parentNode.removeChild script
