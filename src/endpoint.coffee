@@ -27,7 +27,6 @@ class Endpoint
     id = util.generateUUID()
 
     new TicketingHub.Promise (resolve, reject) =>
-      parts = util.parseURL(if path[0] == '/' then "#{@origin}/#{path}" else "#{@url}/#{path}")
       json_params = encodeURIComponent TicketingHub.JSON.stringify(params || {})
       query = "?_id=#{id}&_json=#{json_params}&_method=#{method.toLowerCase()}"
 
@@ -38,13 +37,14 @@ class Endpoint
           reject new TicketingHub.ServerError(response)
         else resolve response
 
-      if 'XMLHttpRequest' of global
-        # Always use JSONP
+      if 'XMLHttpRequest' of global # Always use JSONP in browser
+        href = if path[0] == '/' then "#{@origin}#{path}" else "#{@url}/#{path}"
+        href = href[...-1] if href[href.length - 1] == '/'
 
         callback = "_jsonp_#{ id.replace /-/g, '' }"
         script = document.createElement 'script'
         script.async = true;
-        script.src = "#{parts.href}.json#{query}&_token=#{@auth}&_callback=#{callback}";
+        script.src = "#{href}.json#{query}&_token=#{@auth}&_callback=#{callback}";
 
         timeout = setTimeout ->
           try script.parentNode.removeChild script
@@ -61,6 +61,8 @@ class Endpoint
         sibling = document.getElementsByTagName('script')[0]
         sibling.parentNode.insertBefore script, sibling
       else
+        url = 'url'
+        require(url).parse str
 
         options =
           method: 'GET'

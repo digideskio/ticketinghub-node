@@ -19,15 +19,6 @@ exports.parseISO8601DateTime = (s) ->
       ms += offset
   new Date(ms)
 
-exports.parseURL = (str) ->
-  if global.window
-    a = document.createElement('a');
-    a.href = str;
-    { protocol: a.protocol, hostname: a.hostname, port: a.port, pathname: a.pathname, href: a.href }
-  else
-    url = 'url'
-    require(url).parse str
-
 exports.extend = (a, b) ->
   for key, value of b
     a[key] = value
