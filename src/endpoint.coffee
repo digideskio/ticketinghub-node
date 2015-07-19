@@ -40,10 +40,10 @@ class Endpoint
       if 'XMLHttpRequest' of global # Always use JSONP in browser
         href = if path[0] == '/' then "#{@origin}#{path}" else "#{@url}/#{path}"
         href = href[...-1] if href[href.length - 1] == '/'
+        callback = "_jsonp_#{ id.replace /-/g, '' }"
         attempt = 1
 
         request = ->
-          callback = "_jsonp_#{ id.replace /-/g, '' }"
           script = document.createElement 'script'
           script.async = true;
           script.src = "#{href}.json#{query}&_token=#{@auth}&_callback=#{callback}&_=#{attempt}";
