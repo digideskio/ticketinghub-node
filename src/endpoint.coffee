@@ -61,7 +61,8 @@ class Endpoint
         global[callback] = (body, status, headers) ->
           clearInterval interval
           global[callback] = ->
-          script.parentNode.removeChild script
+          for script in scripts
+            try script.parentNode.removeChild script
           handle new Response status, body, headers
 
         request()
