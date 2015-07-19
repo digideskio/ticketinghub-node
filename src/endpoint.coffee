@@ -6,7 +6,7 @@ TicketingHub = require './ticketinghub'
 class Endpoint
   module.exports = this
 
-  TIMEOUT = 30 * 1000
+  TIMEOUT = 10 * 1000
   RETRIES = 3
 
   constructor: (@origin, @path = '', @auth = '') ->
@@ -40,26 +40,30 @@ class Endpoint
       if 'XMLHttpRequest' of global # Always use JSONP in browser
         href = if path[0] == '/' then "#{@origin}#{path}" else "#{@url}/#{path}"
         href = href[...-1] if href[href.length - 1] == '/'
+        attempt = 1
 
-        callback = "_jsonp_#{ id.replace /-/g, '' }"
-        script = document.createElement 'script'
-        script.async = true;
-        script.src = "#{href}.json#{query}&_token=#{@auth}&_callback=#{callback}";
+        request = ->
+          callback = "_jsonp_#{ id.replace /-/g, '' }"
+          script = document.createElement 'script'
+          script.async = true;
+          script.src = "#{href}.json#{query}&_token=#{@auth}&_callback=#{callback}&_=#{attempt}";
+          sibling = document.getElementsByTagName('script')[0]
+          sibling.parentNode.insertBefore script, sibling
 
-        timeout = setTimeout ->
-          try script.parentNode.removeChild script
-          global[callback] = ->
-          reject new TicketingHub.ConnectionError('Request timed out.')
+        interval = setInterval ->
+          if attempt++ < RETRIES then request() else
+            try script.parentNode.removeChild script
+            global[callback] = ->
+            reject new TicketingHub.ConnectionError('Request timed out.')
         , TIMEOUT
 
         global[callback] = (body, status, headers) ->
-          clearTimeout timeout
+          clearInterval interval
           global[callback] = ->
           script.parentNode.removeChild script
           handle new Response status, body, headers
 
-        sibling = document.getElementsByTagName('script')[0]
-        sibling.parentNode.insertBefore script, sibling
+        request()
       else
         url = 'url'
         require(url).parse str
