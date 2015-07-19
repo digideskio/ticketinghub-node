@@ -41,18 +41,19 @@ class Endpoint
         href = if path[0] == '/' then "#{@origin}#{path}" else "#{@url}/#{path}"
         href = href[...-1] if href[href.length - 1] == '/'
         callback = "_jsonp_#{ id.replace /-/g, '' }"
-        attempt = 1
+        scripts = []
 
         request = ->
-          script = document.createElement 'script'
+          scripts.push script = document.createElement 'script'
           script.async = true;
-          script.src = "#{href}.json#{query}&_token=#{@auth}&_callback=#{callback}&_=#{attempt}";
+          script.src = "#{href}.json#{query}&_token=#{@auth}&_callback=#{callback}&_=#{scripts.length}";
           sibling = document.getElementsByTagName('script')[0]
           sibling.parentNode.insertBefore script, sibling
 
         interval = setInterval ->
-          if attempt++ < RETRIES then request() else
-            try script.parentNode.removeChild script
+          if scripts.length < RETRIES then request() else
+            for script in scripts
+              try script.parentNode.removeChild script
             global[callback] = ->
             reject new TicketingHub.ConnectionError('Request timed out.')
         , TIMEOUT
