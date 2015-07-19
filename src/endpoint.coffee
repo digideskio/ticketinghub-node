@@ -43,7 +43,7 @@ class Endpoint
         callback = "_jsonp_#{ id.replace /-/g, '' }"
         scripts = []
 
-        request = ->
+        request = =>
           scripts.push script = document.createElement 'script'
           script.async = true;
           script.src = "#{href}.json#{query}&_token=#{@auth}&_callback=#{callback}&_=#{scripts.length}";
