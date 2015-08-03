@@ -4,5 +4,5 @@ class Payment extends require('../resource')
   @path = '/channel/payments'
 
   @types
-    credit: require('./payment/credit')
+    paypal: require('./payment/paypal')
     stripe: require('./payment/stripe')

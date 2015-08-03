@@ -17,6 +17,7 @@ class Channel extends require('../resource')
   @collection 'options', require('./option')
 
   @association 'product', require('./product')
+  @association 'reseller', require('./reseller')
 
   @login: (token) ->
     TicketingHub.endpoint.base(@path, token).get().then (response) =>
