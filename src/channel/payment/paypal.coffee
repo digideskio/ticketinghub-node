@@ -1,4 +1,4 @@
 class PaypalPayment extends require('../payment')
   module.exports = this
 
-  @path = '/channel/payments'
+  @path = '/channel/payments/paypal'
