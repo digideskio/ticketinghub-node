@@ -70,8 +70,7 @@ class Collection extends EventEmitter
       @reload().then => resolve @_count
 
   for method in ['get', 'post', 'patch', 'delete'] then do (method) =>
-    @::[method] = (args...) ->
-      @endpoint[method](args...).then (response) -> response.body
+    @::[method] = (args...) -> @endpoint[method] args...
 
   create: (attributes) ->
     @endpoint.post(attributes)
