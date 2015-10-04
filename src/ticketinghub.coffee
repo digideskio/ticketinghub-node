@@ -3,7 +3,8 @@
 class TicketingHub
   module.exports = this
 
-  @Channel: require('./channel/channel')
+  @API: require('./api')
+
   @Promise: require('yaku')
   @JSON: require('json3')
 

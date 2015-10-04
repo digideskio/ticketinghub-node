@@ -1,37 +1,39 @@
-extend = require('./util').extend
+{ merge, extend } = require('./util')
 util = require('./util')
-Collection = require './collection'
 EventEmitter = require('events').EventEmitter
 TicketingHub = require './ticketinghub'
 
 class Resource extends EventEmitter
   module.exports = this
 
-  @collection: (key, klass) ->
-    @::[key] = (args...) ->
-      if typeof args[0] is 'string'
-        @_endpoint.get("#{klass.path}/#{args[0]}", args.slice(1)...).then (response) =>
-          klass.load @_endpoint, response.body
-      else
-        new Collection @_endpoint.join(key), klass, args[0]
+  Collection = require './collection'
 
-  @association: (key, klass) ->
-    @::["#{key}="] = (attributes) ->
-      @[key] = klass.load @_endpoint, attributes
+  @load: (api, { id, path, singleton, fields, associations, collections, types }, endpoint, body) ->
+    if type = types?[body.type]
+      path = type.path if type.path
+      associations = associations.concat type.associations || []
+      collections = merge collections, type.collections || {}
+      fields = merge fields, type.fields || {}
 
-  @types: (hash) ->
-    @_types = hash
+    path = if singleton then path else "#{ path }/#{ body[id || 'id'] }"
+    new Resource(api, { fields, associations, collections }, endpoint.base(path), body)
 
-  @load: (endpoint, attributes) ->
-    [callback, attributes] = [attributes, callback] if typeof attributes is 'function'
-    type = @_types?[attributes.type] || this
-
-    path = if @singleton then type.path else "#{type.path}/#{attributes.id}"
-    endpoint = endpoint.base path
-    return new type(endpoint, attributes)
-
-  constructor: (@_endpoint, attributes) ->
+  constructor: (@_api, @_schema, @_endpoint, attributes) ->
     super()
+
+    { fields, associations, collections } = @_schema
+
+    for association in associations || [] then do (association) =>
+      this["#{association}="] = (attributes) ->
+        this[association] = attributes && Resource.load(@_api, @_api.manifest.schema[association], @_endpoint, attributes)
+
+    for key, resource of collections || {} then do (key, resource) =>
+      this[key] = (args...) ->
+        schema = @_api.manifest.schema[resource]
+        if typeof args[0] is 'string'
+          @_endpoint.get("#{schema.path}/#{args[0]}", args.slice(1)...).then (response) =>
+            Resource.load @_api, schema, @_endpoint, response.body
+        else new Collection @_api, schema, @_endpoint.join(key), args[0]
 
     @_setup attributes
     listening = false
@@ -53,8 +55,8 @@ class Resource extends EventEmitter
               if updated_at != @updated_at
                 updated_at = @updated_at
                 @emit 'change', this
-              setTimeout retry, util.timeDecay(util.parseISO8601DateTime(@updated_at))
-          setTimeout retry, util.timeDecay(util.parseISO8601DateTime(@updated_at))
+              setTimeout retry, util.timeDecay(@updated_at)
+          setTimeout retry, util.timeDecay(@updated_at)
 
   delete: (params) ->
     @_endpoint.delete(params)
@@ -64,7 +66,7 @@ class Resource extends EventEmitter
     @_endpoint.patch(attributes)
       .then (response) => @_setup(response.body)
       .catch (error) =>
-        if (error instanceof TicketingHub.RequestError) || error.response.status == 422
+        if (error instanceof TicketingHub.RequestError) && error.response.status == 422
           throw new TicketingHub.ValidationError @constructor.load(@_endpoint, error.response.body)
         else throw error
 

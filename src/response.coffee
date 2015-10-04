@@ -8,7 +8,7 @@ class Response
     for key, value of headers
       @headers[key.toLowerCase()] = value
 
-    if /json/.test @headers['content-type']
+    if /json/.test(@headers['content-type']) && body.length >= 2
       body = TicketingHub.JSON.parse body
 
     @body = body

@@ -24,26 +24,16 @@ exports.extend = (a, b) ->
     a[key] = value
   return a
 
-exports.parseResponseHeaders = (headerStr) ->
-  headers = {}
-  if !headerStr
-    return headers
-  headerPairs = headerStr.split('\u000d\u000a')
-  i = 0
-  while i < headerPairs.length
-    headerPair = headerPairs[i]
-    index = headerPair.indexOf('\u003a\u0020')
-    if index > 0
-      key = headerPair.substring(0, index)
-      val = headerPair.substring(index + 2)
-      headers[key] = val
-    i++
-  headers
+exports.merge = (a, b) ->
+  value = exports.extend {}, a
+  exports.extend value, b
+  return value
 
 exports.generateUUID = ->
   ([1e7]+-1e3+-4e3+-8e3+-1e11)
     .replace /[018]/g, (a) -> (a ^ Math.random() * 16 >> a / 4).toString(16)
 
 exports.timeDecay = (date) =>
+  date = exports.parseISO8601DateTime(date) if typeof date is 'string'
   seconds = (Number(new Date) - Number(date)) / 1000
   Math.log(1 + seconds, Math.E) * 1000

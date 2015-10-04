@@ -1,68 +1,61 @@
-extend = require('./util').extend
+{ merge, extend } = require('./util');
 TicketingHub = require('./ticketinghub');
 EventEmitter = require('events').EventEmitter
 
 class Collection extends EventEmitter
   module.exports = this
 
-  MAX_LIMIT = 25
+  Resource = require './resource'
 
-  constructor: (@endpoint, @klass, params) ->
+  constructor: (@api, @schema, @endpoint, params) ->
+    @_params = extend {}, params || {}
     super()
 
-    @_params = extend {}, params || {}
-    @_limit = @_params.limit || MAX_LIMIT
-    @_offset = @_params.offset || 0
+  each: (params, callback) ->
+    if typeof params is 'function'
+      [ params, callback ] = [ callback, params ]
 
-  each: (callback) ->
-    index = 0
+    params = @params params
+    index = (params.offset ||= 0)
 
-    dispatch = (cache) =>
-      for value in cache
-        loaded = @klass.load @endpoint, value
-        return false if callback(loaded, index++, @_count) == false
+    dispatch = (results) =>
+      for result in results
+        resource = Resource.load @api, @schema, @endpoint, result
+        return false if callback(resource, index++, @_count) == false
       return true
 
-    fetch = (offset) =>
-      if offset == @_offset && @_cache then return if dispatch(@_cache) == false
-      return if @_count && @_cache.length >= @_count
-      @endpoint.get(@params(offset: offset)).then (response) =>
+    fetch = =>
+      @endpoint.get(params).then (response) =>
         @_count = parseInt response.headers['x-total-count']
-        if dispatch(response.body) && response.status == 206 then fetch offset + MAX_LIMIT
+        if dispatch(response.body) && response.status == 206
+          fetch (params.offset = index + 1)
 
-    fetch @_offset
+    fetch()
     return this
 
-  first: (count = 1) ->
-    new TicketingHub.Promise (resolve, reject) =>
-      values = []
-      @limit(Math.min MAX_LIMIT, count).each (value, index) ->
-        if index == count - 1
-          resolve values
-          return false
+  slice: (start, end) ->
+    @count().then (count) =>
+      start = if start < 0 then count + start else start
+      end = if end then (if end < 0 then count + end else end) else count
 
-  all: ->    
-    @reload().then =>
+      return [] if start >= count
+
       new TicketingHub.Promise (resolve, reject) =>
-        values = []
-        @each (value, index, count) ->
-          values.push value
-          resolve values if index == count - 1
-        resolve values if @_count == 0
+        resources = []
+        @each offset: start, limit: (end - start), (resource, index, count) ->
+          end = if end then (if end < 0 then count + end else end) else count
+          resources.push resource
+          if end == (index + 1)
+            resolve resources
+            return false
 
-  scope: (path) ->
-    new Collection @endpoint.join(path), @klass, @_params
+  all: -> @slice(0)
 
-  limit: (value) ->
-    return @_limit unless value?
-    new Collection @endpoint, @klass, @params(limit: parseInt(value))
-  
-  offset: (value) ->
-    return @_offset unless value?
-    new Collection @endpoint, @klass, @params(offset: parseInt(value))
+  scope: (path, params = {}) ->
+    new Collection @api, @schema, @endpoint.join(path), @params(params)
 
   filter: (filters) ->
-    new Collection @endpoint, @klass, @params(filters: filters)
+    new Collection @api, @schema, @endpoint, @params(filters: filters)
 
   count: ->
     new TicketingHub.Promise (resolve, reject) =>
@@ -75,19 +68,17 @@ class Collection extends EventEmitter
   create: (attributes) ->
     @endpoint.post(attributes)
       .then (response) =>
-        @klass.load(@endpoint, response.body)
+        Resource.load @api, @schema, @endpoint, response.body
       .catch (error) =>
-        if (error instanceof TicketingHub.RequestError) || error.response.status == 422
-          throw new TicketingHub.ValidationError @klass.load(@endpoint, error.response.body)
+        if (error instanceof TicketingHub.RequestError) && error.response.status == 422
+          throw new TicketingHub.ValidationError Resource.load(@api, @schema, @endpoint, error.response.body)
         else throw error
 
   reload: (params) ->
-    @endpoint.get(@params(params)).then (response) =>
-      @_cache = response.body
-      @_count = if status == 206
-        parseInt response.headers['x-total-count']
-      else @_cache.length
+    @endpoint.head(@params(params)).then (response) =>
+      if 'x-total-count' of response.headers
+        @_count = parseInt response.headers['x-total-count']
       return this
 
   params: (params) ->
-    extend extend({}, @_params), params || {}
+    merge @_params, params || {}

@@ -3,32 +3,42 @@ Response = require './response'
 util = require './util'
 TicketingHub = require './ticketinghub'
 
+join = (args...) ->
+  args.join('/')
+    .replace(/[\/]+/g, '/')
+    .replace(/\/\?/g, '?')
+    .replace(/\/\#/g, '#')
+    .replace(/\:\//g, '://')
+    .replace(/\/$/g, '')
+
 class Endpoint
   module.exports = this
 
   TIMEOUT = 10 * 1000
-  RETRIES = 3
+  RETRIES = 6
 
   constructor: (@origin, @path = '', @auth = '') ->
-    @url = "#{@origin}#{@path}"
+    @url = join @origin, @path
 
   base: (path, auth = @auth) ->
     new Endpoint @origin, path, auth
 
   join: (path, auth = @auth) ->
-    new Endpoint @origin, "#{@path}/#{path}", auth
+    new Endpoint @origin, join(@path, path), auth
 
-  for method in ['get', 'post', 'patch', 'delete'] then do (method) =>
+  for method in ['head', 'get', 'post', 'patch', 'delete'] then do (method) =>
     @::[method] = (path, params) ->
       [path, params] = [params, path] unless typeof path == 'string'
       @request method, path, params
 
   request: (method, path = '', params) ->
     id = util.generateUUID()
+    href = if path[0] == '/' then join(@origin, path) else if path then join(@url, path) else @url
 
     new TicketingHub.Promise (resolve, reject) =>
       json_params = encodeURIComponent TicketingHub.JSON.stringify(params || {})
       query = "?_id=#{id}&_json=#{json_params}&_method=#{method.toLowerCase()}"
+      href = "#{href}.json" unless href.match /\.json$/
 
       handle = (response) ->
         if 400 <= response.status < 500
@@ -38,15 +48,13 @@ class Endpoint
         else resolve response
 
       if 'XMLHttpRequest' of global # Always use JSONP in browser
-        href = if path[0] == '/' then "#{@origin}#{path}" else "#{@url}/#{path}"
-        href = href[...-1] if href[href.length - 1] == '/'
         callback = "_jsonp_#{ id.replace /-/g, '' }"
         scripts = []
 
         request = =>
           scripts.push script = document.createElement 'script'
-          script.async = true;
-          script.src = "#{href}.json#{query}&_token=#{@auth}&_callback=#{callback}&_=#{scripts.length}";
+          script.defer = script.async = true;
+          script.src = "#{href}#{query}&_token=#{@auth}&_callback=#{callback}&_=#{scripts.length}";
           sibling = document.getElementsByTagName('script')[0]
           sibling.parentNode.insertBefore script, sibling
 
@@ -68,7 +76,7 @@ class Endpoint
         request()
       else
         url = 'url'
-        require(url).parse str
+        parts = require(url).parse href
 
         options =
           method: 'GET'
@@ -77,6 +85,8 @@ class Endpoint
           port: parts.port
           auth: "#{@auth}:"
           path: "#{parts.path}#{query}"
+          headers:
+            accept: 'application/json'
 
         agent = require parts.protocol[0...-1]
         req = agent.request options, (res) ->
