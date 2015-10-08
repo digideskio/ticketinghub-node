@@ -28,7 +28,7 @@ class Collection extends EventEmitter
       @endpoint.get(params).then (response) =>
         @_count = parseInt response.headers['x-total-count']
         if dispatch(response.body) && response.status == 206
-          fetch (params.offset = index + 1)
+          fetch params.offset = index
 
     fetch()
     return this
