@@ -67,7 +67,7 @@ class Resource extends EventEmitter
       .then (response) => @_setup(response.body)
       .catch (error) =>
         if (error instanceof TicketingHub.RequestError) && error.response.status == 422
-          throw new TicketingHub.ValidationError @constructor.load(@_endpoint, error.response.body)
+          throw new TicketingHub.ValidationError @_setup(error.response.body)
         else throw error
 
   reload: ->
