@@ -16,7 +16,7 @@ class Resource extends EventEmitter
       fields = merge fields, type.fields || {}
 
     path = if singleton then path else "#{ path }/#{ body[id || 'id'] }"
-    new Resource(api, { fields, associations, collections }, endpoint.base(path), body)
+    new Resource(api, { id, fields, associations, collections }, endpoint.base(path), body)
 
   constructor: (@_api, @_schema, @_endpoint, attributes) ->
     super()
@@ -80,3 +80,6 @@ class Resource extends EventEmitter
         @["#{key}="] value
       else @[key] = value
     return this
+
+  toString: ->
+    this[@_schema.id]
