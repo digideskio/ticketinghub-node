@@ -8,7 +8,7 @@ class Resource extends EventEmitter
 
   Collection = require './collection'
 
-  @load: (api, { id, path, singleton, fields, associations, collections, types }, endpoint, body) ->
+  @load: (api, { id, path, singleton, fields, associations, collections, endpoints, types }, endpoint, body) ->
     if type = types?[body.type]
       path = type.path if type.path
       associations = associations.concat type.associations || []
@@ -16,7 +16,7 @@ class Resource extends EventEmitter
       fields = merge fields, type.fields || {}
 
     path = if singleton then path else "#{ path }/#{ body[id || 'id'] }"
-    new Resource(api, { id, fields, associations, collections }, endpoint.base(path), body)
+    new Resource(api, { id, fields, associations, endpoints, collections }, endpoint.base(path), body)
 
   constructor: (@_api, @_schema, @_endpoint, attributes) ->
     super()
