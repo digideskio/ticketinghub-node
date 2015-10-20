@@ -21,7 +21,7 @@ class Resource extends EventEmitter
   constructor: (@_api, @_schema, @_endpoint, attributes) ->
     super()
 
-    { fields, associations, collections } = @_schema
+    { fields, associations, collections, endpoints } = @_schema
 
     for association in associations || [] then do (association) =>
       this["#{association}="] = (attributes) ->
@@ -34,6 +34,9 @@ class Resource extends EventEmitter
           @_endpoint.get("#{schema.path}/#{args[0]}", args.slice(1)...).then (response) =>
             Resource.load @_api, schema, @_endpoint, response.body
         else new Collection @_api, schema, @_endpoint.join(key), args[0]
+
+    for key, method of endpoints || {} then do (key, method) =>
+      this[key] = (args...) -> @_endpoint[method] key, args...
 
     @_setup attributes
     listening = false
