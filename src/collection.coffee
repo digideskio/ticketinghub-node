@@ -36,14 +36,14 @@ class Collection extends EventEmitter
   slice: (start, end) ->
     @count().then (count) =>
       start = if start < 0 then count + start else start
-      end = if end then (if end < 0 then count + end else end) else count
+      end = Math.min count, (if end then (if end < 0 then count + end else end) else count)
 
       return [] if start >= count
 
       new TicketingHub.Promise (resolve, reject) =>
         resources = []
         @each offset: start, limit: (end - start), (resource, index, count) ->
-          end = if end then (if end < 0 then count + end else end) else count
+          end = Math.min count, (if end then (if end < 0 then count + end else end) else count)
           resources.push resource
           if end == (index + 1)
             resolve resources
