@@ -9,7 +9,7 @@ class Resource extends EventEmitter
   Collection = require './collection'
 
   @load: (api, { id, path, singleton, fields, associations, collections, endpoints, types }, endpoint, body) ->
-    if type = types?[body.type]
+    if type = (do -> return value for key, value of types when body.type == key || value.type == body.type)
       path = type.path if type.path
       associations = associations.concat type.associations || []
       collections = merge collections, type.collections || {}
